@@ -1,3 +1,4 @@
+using PaymentGateway.Api.Repositories;
 using PaymentGateway.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient<IAcquiringBankService, AcquiringBankService>(client =>
+{
+    var baseUri = builder.Configuration.GetValue<string>("Services:AcquiringBankService:BaseUri") ?? throw new InvalidOperationException("Services:AcquiringBankService:BaseUri is null");
+    client.BaseAddress = new Uri(baseUri);
+});
 builder.Services.AddSingleton<PaymentsRepository>();
 
 var app = builder.Build();
