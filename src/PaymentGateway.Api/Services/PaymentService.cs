@@ -51,22 +51,24 @@ public class PaymentService: IPaymentService
         }
         catch (AcquiringBankUnavailableException ex)
         {
-            return (null, new List<string> { "The service is unavailable right now. No money was taken from your card. Please try again later" });
+            return (null, new List<string> { AcquiringBankUnavailableException.AcquiringBankUnavailableMessage });
         }
 
         var authorized = acquiringBankResponse?.Authorized ?? false;
         var status = authorized ? PaymentStatus.Authorized : PaymentStatus.Declined;
         var isGuidParsed = Guid.TryParse(acquiringBankResponse?.AuthorizationCode, out var code);
         var id = isGuidParsed ? code : Guid.NewGuid();
+        var cardNumberLastFour = paymentRequest.CardNumber[^4..];
+        var currency = paymentRequest.Currency.ToUpper();
         
         _paymentsRepository.Add(new PaymentEntity
         {
             Id = id,
             Status = status,
-            CardNumberLastFour = paymentRequest.CardNumber[^4..],
+            CardNumberLastFour = cardNumberLastFour,
             ExpiryMonth = paymentRequest.ExpiryMonth,
             ExpiryYear = paymentRequest.ExpiryYear,
-            Currency = paymentRequest.Currency.ToUpper(),
+            Currency = currency,
             Amount = paymentRequest.Amount
         });
 
@@ -74,10 +76,10 @@ public class PaymentService: IPaymentService
         {
             Id = id,
             Status = status.ToString(),
-            CardNumberLastFour = paymentRequest.CardNumber[^4..],
+            CardNumberLastFour = cardNumberLastFour,
             ExpiryMonth = paymentRequest.ExpiryMonth,
             ExpiryYear = paymentRequest.ExpiryYear,
-            Currency = paymentRequest.Currency.ToUpper(),
+            Currency = currency,
             Amount = paymentRequest.Amount
         }, null);
     }

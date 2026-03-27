@@ -143,7 +143,7 @@ public class PaymentsControllerTests
         
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("The service is unavailable right now. No money was taken from your card. Please try again later", content);
+        Assert.Contains(AcquiringBankUnavailableException.AcquiringBankUnavailableMessage, content);
     }
 
     [Fact]

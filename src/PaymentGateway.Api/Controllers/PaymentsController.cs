@@ -39,7 +39,7 @@ public class PaymentsController : Controller
         
         if (errors != null)
         {
-            if (errors.Any(x => x == "The service is unavailable right now. No money was taken from your card. Please try again later"))
+            if (errors.Any(x => x == AcquiringBankUnavailableException.AcquiringBankUnavailableMessage))
             {
                 return Ok(errors);
             }
