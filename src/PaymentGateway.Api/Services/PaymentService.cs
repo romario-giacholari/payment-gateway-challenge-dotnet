@@ -30,7 +30,7 @@ public class PaymentService
     public async Task<(PostPaymentResponse? Response, IReadOnlyList<string>? Errors)> ProcessPaymentAsync(PostPaymentRequest paymentRequest)
     {
         var errors = _postPaymentRequestValidator.Validate(paymentRequest);
-        if (errors.Count != 0)
+        if (errors.Count > 0)
         {
             return (null, errors);
         }
@@ -68,6 +68,6 @@ public class PaymentService
             ExpiryYear = paymentRequest.ExpiryYear,
             Currency = paymentRequest.Currency.ToUpper(),
             Amount = paymentRequest.Amount
-        }, errors);
+        }, null);
     }
 }
