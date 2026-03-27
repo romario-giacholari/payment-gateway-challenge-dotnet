@@ -62,7 +62,7 @@ public class PaymentService
         return (new PostPaymentResponse
         {
             Id = code,
-            Status = status,
+            Status = status.ToString(),
             CardNumberLastFour = paymentRequest.CardNumber[^4..],
             ExpiryMonth = paymentRequest.ExpiryMonth,
             ExpiryYear = paymentRequest.ExpiryYear,
