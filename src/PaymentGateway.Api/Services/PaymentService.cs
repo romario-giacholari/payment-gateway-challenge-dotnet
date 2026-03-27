@@ -1,4 +1,5 @@
-﻿using PaymentGateway.Api.Repositories;
+﻿using PaymentGateway.Api.Models.Responses;
+using PaymentGateway.Api.Repositories;
 
 namespace PaymentGateway.Api.Services;
 
@@ -13,13 +14,16 @@ public class PaymentService
         _acquiringBankService = acquiringBankService;
     }
 
-    public async Task<object> getPayment(Guid id)
-    {
-       return _paymentsRepository.Get(id);
+    public GetPaymentResponse? GetPaymentAsync(Guid id)
+    { 
+        var payment = _paymentsRepository.Get(id);
+
+        return payment?.ToGetPaymentResponse();
     }
 
-    public async Task<object> processPayment()
+    public PostPaymentResponse ProcessPaymentAsync()
     {
-        return new { };
+        var postPaymentResponse = new PostPaymentResponse();
+        return postPaymentResponse;
     }
 }

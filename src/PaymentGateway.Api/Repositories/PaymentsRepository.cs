@@ -1,18 +1,21 @@
-﻿using PaymentGateway.Api.Models.Responses;
+﻿using PaymentGateway.Api.Entities;
 
 namespace PaymentGateway.Api.Repositories;
 
 public class PaymentsRepository
 {
-    public List<PostPaymentResponse> Payments = new();
+    private List<PaymentEntity> _payments = [];
     
-    public void Add(PostPaymentResponse payment)
+    public void Add(PaymentEntity payment)
     {
-        Payments.Add(payment);
+        if (!_payments.Contains(payment))
+        {
+            _payments.Add(payment);
+        }
     }
 
-    public PostPaymentResponse Get(Guid id)
+    public PaymentEntity? Get(Guid id)
     {
-        return Payments.FirstOrDefault(p => p.Id == id);
+        return _payments.FirstOrDefault(p => p.Id == id);
     }
 }
