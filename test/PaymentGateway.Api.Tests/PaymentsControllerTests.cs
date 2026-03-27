@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using PaymentGateway.Api.Controllers;
 using PaymentGateway.Api.Entities;
+using PaymentGateway.Api.Models;
 using PaymentGateway.Api.Models.Responses;
 using PaymentGateway.Api.Repositories;
 
@@ -25,7 +26,8 @@ public class PaymentsControllerTests
             ExpiryMonth = _random.Next(1, 12),
             Amount = _random.Next(1, 10000),
             CardNumberLastFour = _random.Next(1111, 9999).ToString(),
-            Currency = "GBP"
+            Currency = "GBP",
+            Status = PaymentStatus.Authorized
         };
 
         var paymentsRepository = new PaymentsRepository();
@@ -34,12 +36,12 @@ public class PaymentsControllerTests
         var webApplicationFactory = new WebApplicationFactory<PaymentsController>();
         var client = webApplicationFactory.WithWebHostBuilder(builder =>
             builder.ConfigureServices(services => ((ServiceCollection)services)
-                .AddSingleton(paymentsRepository)))
+                .AddSingleton<IPaymentsRepository>(paymentsRepository)))
             .CreateClient();
 
         // Act
         var response = await client.GetAsync($"/api/Payments/{payment.Id}");
-        var paymentResponse = await response.Content.ReadFromJsonAsync<PostPaymentResponse>();
+        var paymentResponse = await response.Content.ReadFromJsonAsync<GetPaymentResponse>();
         
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

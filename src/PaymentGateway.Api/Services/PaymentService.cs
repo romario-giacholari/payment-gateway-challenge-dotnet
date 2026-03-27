@@ -1,4 +1,5 @@
 ﻿using PaymentGateway.Api.Entities;
+using PaymentGateway.Api.Exceptions;
 using PaymentGateway.Api.Models;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Models.Responses;
@@ -7,20 +8,20 @@ using PaymentGateway.Api.Validation.Requests;
 
 namespace PaymentGateway.Api.Services;
 
-public class PaymentService
+public class PaymentService: IPaymentService
 {
-    private readonly PaymentsRepository _paymentsRepository;
+    private readonly IPaymentsRepository _paymentsRepository;
     private readonly IAcquiringBankService _acquiringBankService;
     private readonly PostPaymentRequestValidator _postPaymentRequestValidator;
     
-    public PaymentService(PaymentsRepository paymentRepository, IAcquiringBankService acquiringBankService, PostPaymentRequestValidator postPaymentRequestValidator)
+    public PaymentService(IPaymentsRepository paymentRepository, IAcquiringBankService acquiringBankService, PostPaymentRequestValidator postPaymentRequestValidator)
     {
         _paymentsRepository = paymentRepository;
         _acquiringBankService = acquiringBankService;
         _postPaymentRequestValidator = postPaymentRequestValidator;
     }
 
-    public GetPaymentResponse? GetPaymentAsync(Guid id)
+    public GetPaymentResponse? GetPayment(Guid id)
     { 
         var payment = _paymentsRepository.Get(id);
 
@@ -29,20 +30,29 @@ public class PaymentService
 
     public async Task<(PostPaymentResponse? Response, IReadOnlyList<string>? Errors)> ProcessPaymentAsync(PostPaymentRequest paymentRequest)
     {
+        AcquiringBankResponse? acquiringBankResponse;
         var errors = _postPaymentRequestValidator.Validate(paymentRequest);
         if (errors.Count > 0)
         {
             return (null, errors);
         }
-        
-        var acquiringBankResponse = await _acquiringBankService.ProcessPaymentAsync(new AcquiringBankPostPaymentRequest
+
+        try
         {
-            card_number = paymentRequest.CardNumber,
-            expiry_date = $"{paymentRequest.ExpiryMonth:D2}/{paymentRequest.ExpiryYear}",
-            currency =  paymentRequest.Currency.ToUpper(),
-            amount = paymentRequest.Amount,
-            cvv = paymentRequest.Cvv,
-        });
+            acquiringBankResponse = await _acquiringBankService.ProcessPaymentAsync(new AcquiringBankPostPaymentRequest 
+            {
+                card_number = paymentRequest.CardNumber,
+                expiry_date = $"{paymentRequest.ExpiryMonth:D2}/{paymentRequest.ExpiryYear}",
+                currency =  paymentRequest.Currency.ToUpper(),
+                amount = paymentRequest.Amount,
+                cvv = paymentRequest.Cvv,
+            });
+
+        }
+        catch (AcquiringBankUnavailableException ex)
+        {
+            return (null, new List<string> { "The service is unavailable right now. No money was taken from your card. Please try again later" });
+        }
 
         var authorized = acquiringBankResponse?.Authorized ?? false;
         var status = authorized ? PaymentStatus.Authorized : PaymentStatus.Declined;

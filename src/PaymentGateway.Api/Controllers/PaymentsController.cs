@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using PaymentGateway.Api.Exceptions;
 using PaymentGateway.Api.Models;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Models.Responses;
@@ -11,9 +12,9 @@ namespace PaymentGateway.Api.Controllers;
 [ApiController]
 public class PaymentsController : Controller
 {
-    private readonly PaymentService _paymentService;
+    private readonly IPaymentService _paymentService;
 
-    public PaymentsController(PaymentService paymentService)
+    public PaymentsController(IPaymentService paymentService)
     {
         _paymentService = paymentService;
     }
@@ -21,7 +22,7 @@ public class PaymentsController : Controller
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<GetPaymentResponse?>> GetPaymentAsync(Guid id)
     {
-        var payment = _paymentService.GetPaymentAsync(id);
+        var payment = _paymentService.GetPayment(id);
 
         if (payment == null)
         {
@@ -35,7 +36,7 @@ public class PaymentsController : Controller
     public async Task<ActionResult<PostPaymentResponse?>> PostPaymentAsync([FromBody]PostPaymentRequest paymentRequest)
     {
         (PostPaymentResponse? postPaymentResponse, IReadOnlyList<string>? errors) = await _paymentService.ProcessPaymentAsync(paymentRequest);
-
+        
         if (errors != null)
         {
             return BadRequest(errors);

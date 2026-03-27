@@ -16,10 +16,9 @@ builder.Services.AddHttpClient<IAcquiringBankService, AcquiringBankService>(clie
     var baseUri = builder.Configuration.GetValue<string>("Services:AcquiringBankService:BaseUri") ?? throw new InvalidOperationException("Services:AcquiringBankService:BaseUri is null");
     client.BaseAddress = new Uri(baseUri);
 });
-
-builder.Services.AddSingleton<PaymentsRepository>();
 builder.Services.AddSingleton<PostPaymentRequestValidator>();
-builder.Services.AddSingleton<PaymentService>();
+builder.Services.AddSingleton<IPaymentsRepository, PaymentsRepository>();
+builder.Services.AddSingleton<IPaymentService, PaymentService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

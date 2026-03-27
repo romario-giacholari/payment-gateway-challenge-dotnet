@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 
+using PaymentGateway.Api.Exceptions;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Models.Responses;
 
@@ -19,9 +20,9 @@ public class AcquiringBankService: IAcquiringBankService
         var response = await _httpClient.PostAsJsonAsync("/payments", paymentRequest);
         var content = await response.Content.ReadAsStringAsync();
 
-        if (!response.IsSuccessStatusCode)
+        if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
         {
-            return null;
+            throw new AcquiringBankUnavailableException("The acquiring bank service is unavailable");
         }
         
         return JsonSerializer.Deserialize<AcquiringBankResponse>(content, new JsonSerializerOptions

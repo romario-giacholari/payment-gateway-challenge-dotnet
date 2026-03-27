@@ -2,9 +2,9 @@
 
 namespace PaymentGateway.Api.Repositories;
 
-public class PaymentsRepository
+public class PaymentsRepository: IPaymentsRepository
 {
-    private List<PaymentEntity> _payments = [];
+    private readonly List<PaymentEntity> _payments = [];
     
     public void Add(PaymentEntity payment)
     {
