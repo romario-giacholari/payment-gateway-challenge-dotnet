@@ -18,7 +18,7 @@ public class PaymentEntity
         return new GetPaymentResponse
         {
             Id = Id,
-            Status = Status,
+            Status = Status.ToString(),
             CardNumberLastFour = CardNumberLastFour,
             ExpiryMonth = ExpiryMonth,
             ExpiryYear = ExpiryYear,
