@@ -36,17 +36,18 @@ public class PaymentsController : Controller
     public async Task<ActionResult<PostPaymentResponse?>> PostPaymentAsync([FromBody]PostPaymentRequest paymentRequest)
     {
         (PostPaymentResponse? postPaymentResponse, IReadOnlyList<string>? errors) = await _paymentService.ProcessPaymentAsync(paymentRequest);
-        
-        if (errors != null)
+
+        if (errors == null)
         {
-            if (errors.Any(x => x == AcquiringBankUnavailableException.AcquiringBankUnavailableMessage))
-            {
-                return Ok(errors);
-            }
-            
-            return BadRequest(errors);
+            return Ok(postPaymentResponse);
         }
 
-        return Ok(postPaymentResponse);
+        if (errors.Any(x => x == AcquiringBankUnavailableException.AcquiringBankUnavailableMessage))
+        {
+            return Ok(errors);
+        }
+            
+        return BadRequest(errors);
+
     }
 }
