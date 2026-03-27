@@ -1,4 +1,9 @@
-﻿namespace PaymentGateway.Api.Services;
+﻿using System.Text.Json;
+
+using PaymentGateway.Api.Models.Requests;
+using PaymentGateway.Api.Models.Responses;
+
+namespace PaymentGateway.Api.Services;
 
 public class AcquiringBankService: IAcquiringBankService
 {
@@ -9,15 +14,19 @@ public class AcquiringBankService: IAcquiringBankService
         _httpClient = httpClient;
     }
     
-    public async Task<object> ProcessPaymentAsync(object paymentRequest)
+    public async Task<AcquiringBankResponse?> ProcessPaymentAsync(AcquiringBankPostPaymentRequest paymentRequest)
     {
         var response = await _httpClient.PostAsJsonAsync("/payments", paymentRequest);
+        var content = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
-            return Task.FromResult((object)null);
+            return null;
         }
         
-        return await response.Content.ReadFromJsonAsync<object>();
+        return JsonSerializer.Deserialize<AcquiringBankResponse>(content, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
     }
 }

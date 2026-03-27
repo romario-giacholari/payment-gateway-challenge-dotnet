@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using PaymentGateway.Api.Models;
+using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Models.Responses;
 using PaymentGateway.Api.Services;
 
@@ -28,5 +29,18 @@ public class PaymentsController : Controller
         }
 
         return Ok(payment);
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult<PostPaymentResponse?>> PostPaymentAsync([FromBody]PostPaymentRequest paymentRequest)
+    {
+        (PostPaymentResponse? postPaymentResponse, IReadOnlyList<string>? errors) = await _paymentService.ProcessPaymentAsync(paymentRequest);
+
+        if (errors != null)
+        {
+            return BadRequest(errors);
+        }
+
+        return Ok(postPaymentResponse);
     }
 }

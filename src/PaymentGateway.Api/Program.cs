@@ -1,5 +1,6 @@
 using PaymentGateway.Api.Repositories;
 using PaymentGateway.Api.Services;
+using PaymentGateway.Api.Validation.Requests;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +16,9 @@ builder.Services.AddHttpClient<IAcquiringBankService, AcquiringBankService>(clie
     var baseUri = builder.Configuration.GetValue<string>("Services:AcquiringBankService:BaseUri") ?? throw new InvalidOperationException("Services:AcquiringBankService:BaseUri is null");
     client.BaseAddress = new Uri(baseUri);
 });
-builder.Services.AddSingleton<IAcquiringBankService, AcquiringBankService>();
+
 builder.Services.AddSingleton<PaymentsRepository>();
+builder.Services.AddSingleton<PostPaymentRequestValidator>();
 builder.Services.AddSingleton<PaymentService>();
 var app = builder.Build();
 
