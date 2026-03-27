@@ -46,11 +46,12 @@ public class PaymentService
 
         var authorized = acquiringBankResponse?.Authorized ?? false;
         var status = authorized ? PaymentStatus.Authorized : PaymentStatus.Declined;
-        _ = Guid.TryParse(acquiringBankResponse?.AuthorizationCode, out var code);
+        var isGuidParsed = Guid.TryParse(acquiringBankResponse?.AuthorizationCode, out var code);
+        var id = isGuidParsed ? code : Guid.NewGuid();
         
         _paymentsRepository.Add(new PaymentEntity
         {
-            Id = code,
+            Id = id,
             Status = status,
             CardNumberLastFour = paymentRequest.CardNumber[^4..],
             ExpiryMonth = paymentRequest.ExpiryMonth,
@@ -61,7 +62,7 @@ public class PaymentService
 
         return (new PostPaymentResponse
         {
-            Id = code,
+            Id = id,
             Status = status.ToString(),
             CardNumberLastFour = paymentRequest.CardNumber[^4..],
             ExpiryMonth = paymentRequest.ExpiryMonth,
