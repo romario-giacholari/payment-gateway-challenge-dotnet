@@ -42,12 +42,6 @@ public class PaymentsController : Controller
             return Ok(postPaymentResponse);
         }
 
-        if (errors.Any(x => x == AcquiringBankUnavailableException.AcquiringBankUnavailableMessage))
-        {
-            return Ok(errors);
-        }
-            
-        return BadRequest(errors);
-
+        return errors.Any(x => x == AcquiringBankUnavailableException.AcquiringBankUnavailableMessage) ? StatusCode(503, errors) : BadRequest(errors);
     }
 }

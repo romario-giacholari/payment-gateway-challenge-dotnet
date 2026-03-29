@@ -142,7 +142,7 @@ public class PaymentsControllerTests
         var content = await response.Content.ReadAsStringAsync();
         
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
         Assert.Contains(AcquiringBankUnavailableException.AcquiringBankUnavailableMessage, content);
     }
 
